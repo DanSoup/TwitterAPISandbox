@@ -21,15 +21,17 @@ request.get('https://northwitter-api-wqhhzdeecj.now.sh/handles', (err, res) => {
     // })
     // console.log(res.body.handles);
 
+    res.body.handles = ['DanielSoup'];
+
     res.body.handles.forEach((twitterName) => {
 
-        T.get('statuses/user_timeline', {screen_name : twitterName, count : 50}, (err, data, response) => {
+        T.get('statuses/user_timeline', {screen_name : twitterName, count : 0}, (err, data, response) => {
             
             if (err) {
                 console.log(`"${twitterName}" failed to download due to the following error:\n${err}`)
             } else {
 
-                // console.log(data);
+
 
                 let userInfo = {
                     id : data[0].user.id,
@@ -39,12 +41,20 @@ request.get('https://northwitter-api-wqhhzdeecj.now.sh/handles', (err, res) => {
                 };
 
                 data.forEach((tweetInfo, index) => {
-                    userInfo.tweets[index] = data[index].text;
+                    userInfo.tweets[index] = {
+                        tweet : data[index].text,
+                        created_at : data[index].created_at,
+                        id : data[index].id
+                    };
                 })
 
-                fs.writeFile(`./twitterData/${data[0].user.id}.txt`, `const userInfo = ${JSON.stringify(userInfo)}`, (err) => {
+                fs.writeFile(`./twitterData/${userInfo.screen_name}.json`, JSON.stringify(userInfo, null, 2), (err) => {
                     if (err) console.log(err);
+                    fs.readFile(`./twitterData/${userInfo.screen_name}.json`, (err, data) => {
+                        console.log(JSON.parse(data.toString()).id);
+                    });
                 })
+
             }
         })
     })
