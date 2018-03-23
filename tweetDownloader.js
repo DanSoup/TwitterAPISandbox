@@ -19,15 +19,22 @@ request.get('https://northwitter-api-wqhhzdeecj.now.sh/handles', (err, res) => {
 
     // res.body.handles = ['DanielSoup'];
 
+    const listOfHandles = [];
+
+    const noOfHandles = res.body.handles.length;
+    let countOfHandles = 0;
+
     res.body.handles.forEach((twitterName) => {
 
         T.get('statuses/user_timeline', {screen_name : twitterName, count : 0}, (err, data, response) => {
             
+            countOfHandles++;
+
             if (err) {
-                console.log(`"${twitterName}" failed to download due to the following error:\n${err}`)
+                console.log(`"${twitterName}" failed to download due to the following error:\n${err}`);
             } else {
 
-                console.log(`"${twitterName}" data is downloading...`)
+                console.log(`"${twitterName}" data is downloading...`);
 
                 let userInfo = {
                     id : data[0].user.id,
@@ -49,7 +56,26 @@ request.get('https://northwitter-api-wqhhzdeecj.now.sh/handles', (err, res) => {
                         console.log(err);
                     } else {
                         console.log(`"${twitterName}" file created/updated.`)
-                    }
+                    };
+
+                    listOfHandles.push(twitterName);
+
+                    if (countOfHandles === noOfHandles) {
+
+                        listOfHandles.sort((a, b) => {
+                            if ([a.toLowerCase(), b.toLowerCase()].sort()[0] === a.toLowerCase()) {
+                                return -1
+                            } else return 1
+                        });
+
+                        fs.writeFile(`./twitterData/@userHandles.json`, JSON.stringify(listOfHandles, null, 2), (err) => {
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                console.log(`@userHandles file created`)
+                            }
+                        });
+                    };
                         // fs.readFile(`./twitterData/${userInfo.screen_name}.json`, (err, data) => {
                     //     console.log(JSON.parse(data.toString()).id);
                     // });
