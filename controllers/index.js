@@ -23,11 +23,10 @@ function handleHandles (req, res) {
 
 function getUserInfo (req, res) {
 
-    const username = req.url.slice(12);
+    const username = req.url.slice(11);
     console.log(`Fetching information for ${username}`);
 
     fs.readFile(`./twitterData/${username}.json`, 'utf8', (err, userInfoFull) => {
-        console.log(err)
         res.setHeader('Content-Type', 'text/json');
         if (err) {
             res.statusCode = 404;
@@ -43,4 +42,30 @@ function getUserInfo (req, res) {
 
 }
 
-module.exports = {handleApi, handleHandles, getUserInfo}
+function getUserTweets (req, res) {
+
+    const urlData = req.url.split('?');
+    const username = urlData[0].slice(12);;
+    const noOfTweets = urlData[1] === undefined ? 50 : urlData[1].slice(6);
+
+    console.log(`Fetching ${noOfTweets} tweets for ${username}`);
+
+    fs.readFile(`./twitterData/${username}.json`, 'utf8', (err, userInfoFull) => {
+        res.setHeader('Content-Type', 'text/json');
+        if (err) {
+            res.statusCode = 404;
+            res.write(JSON.stringify('ERROR 404: We do not have information on that user.'));
+        } else {
+            res.statusCode = 200;
+            const userTweets = {};
+            for (let i = 0; i < noOfTweets; i++) {
+                userTweets[i] = JSON.parse(userInfoFull).tweets[i];
+            }
+            res.write(JSON.stringify(userTweets, null, 2));
+        }
+        res.end();
+    })
+
+}
+
+module.exports = {handleApi, handleHandles, getUserInfo, getUserTweets}

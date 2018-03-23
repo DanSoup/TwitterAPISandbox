@@ -44,6 +44,7 @@ request.get('https://northwitter-api-wqhhzdeecj.now.sh/handles', (err, res) => {
                 };
 
                 data.forEach((tweetInfo, index) => {
+                    console.log(data[index].text)
                     userInfo.tweets[index] = {
                         tweet : data[index].text,
                         created_at : data[index].created_at,
