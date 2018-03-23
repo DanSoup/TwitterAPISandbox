@@ -4,13 +4,9 @@ const Twit = require('twit');
 const {keysTokens} = require('./config.js');
 const fs = require('fs')
 
-const T = new Twit({
-    consumer_key : keysTokens.ck,
-    consumer_secret : keysTokens.cs,
-    access_token : keysTokens.at,
-    access_token_secret : keysTokens.ats,
-    timeout_ms : 60*1000,  // optional HTTP request timeout to apply to all requests. 
-});
+// console.log(keysTokens)
+
+const T = new Twit(keysTokens);
 
 request.get('https://northwitter-api-wqhhzdeecj.now.sh/handles', (err, res) => {
     // if (err) console.log(err);
@@ -21,7 +17,7 @@ request.get('https://northwitter-api-wqhhzdeecj.now.sh/handles', (err, res) => {
     // })
     // console.log(res.body.handles);
 
-    res.body.handles = ['DanielSoup'];
+    // res.body.handles = ['DanielSoup'];
 
     res.body.handles.forEach((twitterName) => {
 
@@ -31,7 +27,7 @@ request.get('https://northwitter-api-wqhhzdeecj.now.sh/handles', (err, res) => {
                 console.log(`"${twitterName}" failed to download due to the following error:\n${err}`)
             } else {
 
-
+                console.log(`"${twitterName}" data is downloading...`)
 
                 let userInfo = {
                     id : data[0].user.id,
@@ -49,10 +45,14 @@ request.get('https://northwitter-api-wqhhzdeecj.now.sh/handles', (err, res) => {
                 })
 
                 fs.writeFile(`./twitterData/${userInfo.screen_name}.json`, JSON.stringify(userInfo, null, 2), (err) => {
-                    if (err) console.log(err);
-                    fs.readFile(`./twitterData/${userInfo.screen_name}.json`, (err, data) => {
-                        console.log(JSON.parse(data.toString()).id);
-                    });
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log(`"${twitterName}" file created/updated.`)
+                    }
+                        // fs.readFile(`./twitterData/${userInfo.screen_name}.json`, (err, data) => {
+                    //     console.log(JSON.parse(data.toString()).id);
+                    // });
                 })
 
             }
